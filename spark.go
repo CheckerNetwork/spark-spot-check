@@ -45,10 +45,10 @@ func GetSparkRound(roundNum int, meridianContract string) (*Round, error) {
 	return &data, nil
 }
 
-func getRoundUrl(round int, meridian string) string {
-	if round == -1 {
+func getRoundUrl(roundNum int, meridianContact string) string {
+	if roundNum == -1 {
 		return "https://api.filspark.com/rounds/current"
 	}
 
-	return fmt.Sprintf("https://api.filspark.com/rounds/meridian/%s/%d", meridian, round)
+	return fmt.Sprintf("https://api.filspark.com/rounds/meridian/%s/%d", meridianContact, roundNum)
 }
