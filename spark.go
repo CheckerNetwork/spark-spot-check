@@ -26,16 +26,13 @@ func GetSparkRound(roundNum int, meridianContract string) (*Round, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
 
-	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	// Parse JSON response
 	var data Round
 	err = json.Unmarshal(body, &data)
 	if err != nil {

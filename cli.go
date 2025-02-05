@@ -3,6 +3,12 @@ package main
 import "github.com/urfave/cli/v2"
 
 var flags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "output",
+		Aliases: []string{"o"},
+		Value:   "results.json",
+		Usage:   "output file",
+	},
 	&cli.IntFlag{
 		Name:    "checks",
 		Aliases: []string{"c"},

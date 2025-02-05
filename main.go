@@ -32,6 +32,6 @@ func main() {
 	}()
 
 	if err := app.RunContext(ctx, os.Args); err != nil {
-		log.Error("Error", err)
+		log.Error("Error", "err", err)
 	}
 }

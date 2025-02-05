@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"sync"
 
 	log "github.com/inconshreveable/log15"
 
@@ -18,6 +21,18 @@ type CheckResult struct {
 	Task  RetrievalTask
 	Stats *types.RetrievalStats
 	Err   error
+}
+
+func (c CheckResult) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Task  RetrievalTask
+		Stats *types.RetrievalStats
+		Err   string
+	}{
+		Task:  c.Task,
+		Stats: c.Stats,
+		Err:   c.Err.Error(),
+	})
 }
 
 func RunSpotCheck(cctx *cli.Context) error {
@@ -46,33 +61,46 @@ func RunSpotCheck(cctx *cli.Context) error {
 		checksCount = len(round.RetrievalTasks)
 	}
 
-	results := make(chan CheckResult, checksCount)
-	// Pick a random retrieval task
+	// Create new results file
+	file, err := os.Create(cctx.String("output"))
+	if err != nil {
+		return err
+	}
+
+	encoder := json.NewEncoder(file)
+
+	var wg sync.WaitGroup
+	// Run checks concurrently
+	resultChan := make(chan CheckResult, checksCount)
 	for i := 0; i < checksCount; i++ {
+		// Pick a random retrieval task
 		randomIndex := rand.Intn(len(round.RetrievalTasks))
 		retrievalTask := round.RetrievalTasks[randomIndex]
 
+		wg.Add(1)
 		go func() {
+			defer wg.Done()
+
 			rootCid, err := cid.Parse(retrievalTask.Cid)
 			if err != nil {
-				results <- CheckResult{Task: retrievalTask, Stats: nil, Err: err}
+				resultChan <- CheckResult{Task: retrievalTask, Stats: nil, Err: fmt.Errorf("failed to parse CID: %w", err)}
 				return
 			}
 
 			minerAddress, err := address.NewFromString(retrievalTask.MinerId)
 			if err != nil {
-				results <- CheckResult{Task: retrievalTask, Stats: nil, Err: err}
+				resultChan <- CheckResult{Task: retrievalTask, Stats: nil, Err: fmt.Errorf("failed to parse miner address: %w", err)}
 				return
 			}
 
 			peerInfo, err := GetMinerInfo(cctx.Context, rpc, minerAddress, rootCid, cctx.String("ipni"))
 			if err != nil {
-				results <- CheckResult{Task: retrievalTask, Stats: nil, Err: err}
+				resultChan <- CheckResult{Task: retrievalTask, Stats: nil, Err: fmt.Errorf("failed to get miner info: %w", err)}
 				return
 			}
 
 			if peerInfo == nil {
-				results <- CheckResult{Task: retrievalTask, Stats: nil, Err: fmt.Errorf("no provider found for CID %s", rootCid.String())}
+				resultChan <- CheckResult{Task: retrievalTask, Stats: nil, Err: fmt.Errorf("no provider found for CID %s", rootCid.String())}
 				return
 			}
 
@@ -80,13 +108,18 @@ func RunSpotCheck(cctx *cli.Context) error {
 			log.Debug("Fetching content", "cid", rootCid.String(), "minerId", minerAddress.String(), "peerId", peerInfo.ID.String(), "scope", dagScope)
 
 			stats, err := Retrieve(cctx.Context, lassie, rootCid, peerInfo, dagScope)
-			results <- CheckResult{Task: retrievalTask, Stats: stats, Err: err}
+			resultChan <- CheckResult{Task: retrievalTask, Stats: stats, Err: err}
 		}()
 	}
 
-	for result := range results {
-		log.Info("Task result", "task", result.Task, "stats", result.Stats, "err", result.Err)
+	wg.Wait()
+	close(resultChan)
+
+	// Write results to file
+	results := make([]CheckResult, 0, checksCount)
+	for result := range resultChan {
+		results = append(results, result)
 	}
 
-	return nil
+	return encoder.Encode(results)
 }
