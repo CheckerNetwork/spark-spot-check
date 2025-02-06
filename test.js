@@ -4,4 +4,4 @@ import './test/miner-info.test.js'
 import './test/multiaddr.test.js'
 
 import './test/integration.js'
-import './test/spark.js'
+import './test/spot-checker.js'

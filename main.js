@@ -1,4 +1,8 @@
-import Spark from './lib/spark.js'
+import SpotChecker from './lib/spark.js'
 
-const spark = new Spark()
-await spark.run()
+
+const roundNum = -1
+const numTasks = 10
+
+const checker = new SpotChecker()
+await checker.run({ roundNum, numTasks })

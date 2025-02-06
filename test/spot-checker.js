@@ -1,6 +1,6 @@
 /* global Zinnia */
 
-import Spark, { newStats } from '../lib/spark.js'
+import Spotchecker, { newStats } from '../lib/spot-checker.js'
 import { test } from 'zinnia:test'
 import { assertInstanceOf, assertEquals, assertArrayIncludes } from 'zinnia:assert'
 
@@ -44,7 +44,7 @@ test('getRetrieval', async () => {
       }
     }
   }
-  const spark = new Spark({ fetch })
+  const spark = new Spotchecker({ fetch })
   const retrieval = await spark.getRetrieval()
   assertArrayIncludes(round.retrievalTasks.map(JSON.stringify), [retrieval].map(JSON.stringify))
   assertEquals(requests, [
@@ -70,7 +70,7 @@ test('getRetrieval', async () => {
 
 test('fetchCAR - http', async () => {
   const requests = []
-  const spark = new Spark({
+  const spark = new Spotchecker({
     fetch: async (url) => {
       requests.push(url.toString())
       return fetch(url)
@@ -99,7 +99,7 @@ test('fetchCAR - graphsync', async () => {
   const addr = '/dns/f010479.twinquasar.io/tcp/42002/p2p/12D3KooWHKeaNCnYByQUMS2n5PAZ1KZ9xKXqsb4bhpxVJ6bBJg5V'
 
   const requests = []
-  const spark = new Spark({
+  const spark = new Spotchecker({
     fetch: async (url) => {
       requests.push(url.toString())
       return fetch(url)
@@ -131,7 +131,7 @@ test('fetchCAR exceeding MAX_CAR_SIZE', async () => {
       })()
     }
   }
-  const spark = new Spark({ fetch })
+  const spark = new Spotchecker({ fetch })
   const stats = newStats()
   await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/80/http', 'bafy', stats)
   assertEquals(stats.timeout, false)
@@ -143,49 +143,49 @@ test('fetchCAR exceeding MAX_CAR_SIZE', async () => {
 */
 
 test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/ip99/1.2.3.4.5/tcp/80/http', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 701, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/ip4/1.2.3.4/udp/80/http', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 702, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/ip4/1.2.3.4/tcp/80/ldap', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 703, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 704, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=801 (DNS error)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/dns/invalid.example.com/tcp/80/http', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 801, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/79/http', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => {
-  const spark = new Spark()
+  const spark = new Spotchecker()
   const stats = newStats()
   await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/79/http', KNOWN_CID, stats)
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
@@ -195,7 +195,7 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
 // statusCode=901 - unsupported hash algorithm
 
 test('fetchCAR fails with statusCode=902 (hash mismatch)', async () => {
-  const spark = new Spark({
+  const spark = new Spotchecker({
     fetch: async (url) => {
       const res = await fetch(url)
       return {
@@ -216,7 +216,7 @@ test('fetchCAR fails with statusCode=902 (hash mismatch)', async () => {
 })
 
 test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
-  const spark = new Spark({
+  const spark = new Spotchecker({
     // Fetch the root block of a different CID
     fetch: (_url) => fetch(
       'https://frisbii.fly.dev/ipfs/bafkreih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy?dag-scope=block'
@@ -228,7 +228,7 @@ test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
 })
 
 test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
-  const spark = new Spark({
+  const spark = new Spotchecker({
     fetch: async (_url) => {
       return {
         status: 200,
@@ -251,7 +251,7 @@ test('submitRetrieval', async () => {
     requests.push({ url, opts })
     return { status: 200, ok: true, async json () { return { id: 123 } } }
   }
-  const spark = new Spark({ fetch })
+  const spark = new Spotchecker({ fetch })
   await spark.submitMeasurement({ cid: 'bafytest' }, {})
   assertEquals(requests, [
     {
