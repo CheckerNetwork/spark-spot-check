@@ -1,9 +1,8 @@
 /* global Zinnia */
 
-import Spark, { calculateDelayBeforeNextTask, newStats } from '../lib/spark.js'
+import Spark, { newStats } from '../lib/spark.js'
 import { test } from 'zinnia:test'
 import { assertInstanceOf, assertEquals, assertArrayIncludes } from 'zinnia:assert'
-import { SPARK_VERSION } from '../lib/constants.js'
 
 const KNOWN_CID = 'bafkreih25dih6ug3xtj73vswccw423b56ilrwmnos4cbwhrceudopdp5sq'
 
