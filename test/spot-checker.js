@@ -1,89 +1,26 @@
 /* global Zinnia */
 
-import Spotchecker, { newStats } from '../lib/spot-checker.js'
+import SpotChecker, { newStats } from '../lib/spot-checker.js'
 import { test } from 'zinnia:test'
-import { assertInstanceOf, assertEquals, assertArrayIncludes } from 'zinnia:assert'
+import { assertInstanceOf, assertEquals } from 'zinnia:assert'
 
 const KNOWN_CID = 'bafkreih25dih6ug3xtj73vswccw423b56ilrwmnos4cbwhrceudopdp5sq'
 
-test('getRetrieval', async () => {
-  const round = {
-    roundId: '123',
-    startEpoch: 4111111,
-    maxTasksPerNode: 1,
-    retrievalTasks: [
-      {
-        cid: 'bafkreidysaugf7iuvemebpzwxxas5rctbyiryykagup2ygkojmx7ag64gy',
-        minerId: 'f010'
-      },
-      {
-        cid: 'QmUMpWycKJ7GUDJp9GBRX4qWUFUePUmHzri9Tm1CQHEzbJ',
-        minerId: 'f020'
-      }
-    ]
-  }
-  const requests = []
-  const fetch = async (url, allOpts) => {
-    const { signal, ...opts } = allOpts
-    requests.push({ url, opts })
-    if (url === 'https://api.filspark.com/rounds/current') {
-      const headers = new Headers()
-      headers.set('location', '/rounds/meridian/0x84607/115')
-      return {
-        status: 302,
-        ok: false,
-        headers
-      }
-    }
-
-    return {
-      status: 200,
-      ok: true,
-      async json () {
-        return round
-      }
-    }
-  }
-  const spark = new Spotchecker({ fetch })
-  const retrieval = await spark.getRetrieval()
-  assertArrayIncludes(round.retrievalTasks.map(JSON.stringify), [retrieval].map(JSON.stringify))
-  assertEquals(requests, [
-    {
-      url: 'https://api.filspark.com/rounds/current',
-      opts: {
-        method: 'GET',
-        redirect: 'manual',
-        headers: { 'Content-Type': 'application/json' }
-      }
-    },
-    {
-      url: 'https://api.filspark.com/rounds/meridian/0x84607/115',
-      opts: {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        method: 'GET'
-      }
-    }
-  ])
-})
-
 test('fetchCAR - http', async () => {
   const requests = []
-  const spark = new Spotchecker({
+  const spark = new SpotChecker({
     fetch: async (url) => {
       requests.push(url.toString())
       return fetch(url)
     }
   })
   const stats = newStats()
-  await spark.fetchCAR('http', '/dns/frisbii.fly.dev/tcp/443/https', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/dns/frisbii.fly.dev/tcp/443/https', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
   assertInstanceOf(stats.startAt, Date)
   assertInstanceOf(stats.firstByteAt, Date)
   assertInstanceOf(stats.endAt, Date)
-  assertEquals(stats.carTooLarge, false, 'stats.carTooLarge')
   assertEquals(stats.byteLength, 200, 'stats.byteLength')
   assertEquals(stats.carChecksum, '122069f03061f7ad4c14a5691b7e96d3ddd109023a6539a0b4230ea3dc92050e7136', 'stats.carChecksum')
   assertEquals(requests, [`https://frisbii.fly.dev/ipfs/${KNOWN_CID}?dag-scope=block`])
@@ -99,20 +36,19 @@ test('fetchCAR - graphsync', async () => {
   const addr = '/dns/f010479.twinquasar.io/tcp/42002/p2p/12D3KooWHKeaNCnYByQUMS2n5PAZ1KZ9xKXqsb4bhpxVJ6bBJg5V'
 
   const requests = []
-  const spark = new Spotchecker({
+  const spark = new SpotChecker({
     fetch: async (url) => {
       requests.push(url.toString())
       return fetch(url)
     }
   })
   const stats = newStats()
-  await spark.fetchCAR('graphsync', addr, cid, stats)
+  await spark.fetchCAR('graphsync', addr, cid, stats, 'block')
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
   assertInstanceOf(stats.startAt, Date)
   assertInstanceOf(stats.firstByteAt, Date)
   assertInstanceOf(stats.endAt, Date)
-  assertEquals(stats.carTooLarge, false, 'stats.carTooLarge')
   assertEquals(stats.byteLength, 217, 'stats.byteLength')
   assertEquals(stats.carChecksum, '1220a8d765159d8829f2bca7df05e5cd46eb88bdaa30905d3d08c6295562ea072f0f', 'stats.carChecksum')
   assertEquals(requests, [`ipfs://${cid}?dag-scope=block&protocols=graphsync&providers=${encodeURIComponent(addr)}`])
@@ -143,51 +79,51 @@ test('fetchCAR exceeding MAX_CAR_SIZE', async () => {
 */
 
 test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip99/1.2.3.4.5/tcp/80/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip99/1.2.3.4.5/tcp/80/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 701, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/1.2.3.4/udp/80/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/1.2.3.4/udp/80/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 702, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/1.2.3.4/tcp/80/ldap', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/1.2.3.4/tcp/80/ldap', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 703, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 704, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=801 (DNS error)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/dns/invalid.example.com/tcp/80/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/dns/invalid.example.com/tcp/80/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 801, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/79/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/79/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => {
-  const spark = new Spotchecker()
+  const spark = new SpotChecker()
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/79/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/79/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
 })
 
@@ -195,7 +131,7 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
 // statusCode=901 - unsupported hash algorithm
 
 test('fetchCAR fails with statusCode=902 (hash mismatch)', async () => {
-  const spark = new Spotchecker({
+  const spark = new SpotChecker({
     fetch: async (url) => {
       const res = await fetch(url)
       return {
@@ -211,24 +147,24 @@ test('fetchCAR fails with statusCode=902 (hash mismatch)', async () => {
     }
   })
   const stats = newStats()
-  await spark.fetchCAR('http', '/dns/frisbii.fly.dev/tcp/443/https', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/dns/frisbii.fly.dev/tcp/443/https', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 902, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
-  const spark = new Spotchecker({
+  const spark = new SpotChecker({
     // Fetch the root block of a different CID
     fetch: (_url) => fetch(
       'https://frisbii.fly.dev/ipfs/bafkreih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy?dag-scope=block'
     )
   })
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/80/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/80/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 903, 'stats.statusCode')
 })
 
 test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
-  const spark = new Spotchecker({
+  const spark = new SpotChecker({
     fetch: async (_url) => {
       return {
         status: 200,
@@ -240,63 +176,6 @@ test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
     }
   })
   const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/80/http', KNOWN_CID, stats)
+  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/80/http', KNOWN_CID, stats, 'block')
   assertEquals(stats.statusCode, 904, 'stats.statusCode')
-})
-
-test('submitRetrieval', async () => {
-  const requests = []
-  const fetch = async (url, allOpts) => {
-    const { signal, ...opts } = allOpts
-    requests.push({ url, opts })
-    return { status: 200, ok: true, async json () { return { id: 123 } } }
-  }
-  const spark = new Spotchecker({ fetch })
-  await spark.submitMeasurement({ cid: 'bafytest' }, {})
-  assertEquals(requests, [
-    {
-      url: 'https://api.filspark.com/measurements',
-      opts: {
-        method: 'POST',
-        body: JSON.stringify({
-          sparkVersion: SPARK_VERSION,
-          zinniaVersion: Zinnia.versions.zinnia,
-          cid: 'bafytest',
-          participantAddress: Zinnia.walletAddress,
-          stationId: Zinnia.stationId
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      }
-    }
-  ])
-})
-
-test('calculateDelayBeforeNextTask() returns value based on average task duration', () => {
-  const delay = calculateDelayBeforeNextTask({
-    lastTaskDurationInMs: 3_000,
-
-    // one task every 10 seconds (on average)
-    roundLengthInMs: 60_000,
-    maxTasksPerRound: 6
-  })
-  assertEquals(delay, 7_000)
-})
-
-test('calculateDelayBeforeNextTask() handles zero tasks per round', () => {
-  const delay = calculateDelayBeforeNextTask({
-    maxTasksPerRound: 0,
-    // the values below are not important
-    roundLengthInMs: 12345,
-    lastTaskDurationInMs: 12
-  })
-  assertEquals(delay, 60_000)
-})
-
-test('calculateDelayBeforeNextTask() handles one task per round', () => {
-  const delay = calculateDelayBeforeNextTask({
-    roundLengthInMs: 20 * 60_000,
-    maxTasksPerRound: 1,
-    lastTaskDurationInMs: 1_000
-  })
-  assertEquals(delay, 60_000)
 })

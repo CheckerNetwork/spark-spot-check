@@ -3,8 +3,10 @@
 // zinnia run manual-check.js
 //
 
-import Spark, { getRetrievalUrl } from './lib/spark.js'
+import SpotChecker, { getRetrievalUrl } from './lib/spot-checker.js'
 import { getMinerPeerId as defaultGetMinerPeerId } from './lib/miner-info.js'
+
+const dagScope = 'all'
 
 // The task to check, replace with your own values
 const task = {
@@ -18,9 +20,9 @@ const getMinerPeerId = (minerId) =>
     : defaultGetMinerPeerId(minerId)
 
 // Run the check
-const spark = new Spark({ getMinerPeerId })
+const spark = new SpotChecker({ getMinerPeerId })
 const stats = { ...task, indexerResult: null, statusCode: null, byteLength: 0 }
-await spark.executeRetrievalCheck(task, stats)
+await spark.executeSpotCheck(task, stats, dagScope)
 console.log('Measurement: %o', stats)
 
 if (stats.providerAddress && stats.statusCode !== 200) {
@@ -37,7 +39,7 @@ if (stats.providerAddress && stats.statusCode !== 200) {
       break
     case 'http':
       try {
-        const url = getRetrievalUrl(stats.protocol, stats.providerAddress, task.cid)
+        const url = getRetrievalUrl(stats.protocol, stats.providerAddress, task.cid, dagScope)
         console.log('You can get more details by requesting the following URL yourself:\n')
         console.log('  %s', url)
         console.log('\nE.g. using `curl`:')
