@@ -6,7 +6,8 @@
 import SpotChecker, { getRetrievalUrl } from './lib/spot-checker.js'
 import { getMinerPeerId as defaultGetMinerPeerId } from './lib/miner-info.js'
 
-const dagScope = 'all'
+const dagScope = 'entity'
+const entityBytesRange = '0:200'
 
 // The task to check, replace with your own values
 const task = {
@@ -22,7 +23,7 @@ const getMinerPeerId = (minerId) =>
 // Run the check
 const spark = new SpotChecker({ getMinerPeerId })
 const stats = { ...task, indexerResult: null, statusCode: null, byteLength: 0 }
-await spark.executeSpotCheck(task, stats, dagScope)
+await spark.executeSpotCheck({ retrieval: task, stats, dagScope, entityBytesRange })
 console.log('Measurement: %o', stats)
 
 if (stats.providerAddress && stats.statusCode !== 200) {
@@ -39,7 +40,7 @@ if (stats.providerAddress && stats.statusCode !== 200) {
       break
     case 'http':
       try {
-        const url = getRetrievalUrl(stats.protocol, stats.providerAddress, task.cid, dagScope)
+        const url = getRetrievalUrl({ protocol: stats.protocol, address: stats.providerAddress, cid: task.cid, dagScope, entityBytesRange })
         console.log('You can get more details by requesting the following URL yourself:\n')
         console.log('  %s', url)
         console.log('\nE.g. using `curl`:')
