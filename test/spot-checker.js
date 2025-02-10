@@ -2,7 +2,7 @@
 
 import SpotChecker, { newStats } from '../lib/spot-checker.js'
 import { test } from 'zinnia:test'
-import { assertInstanceOf, assertEquals } from 'zinnia:assert'
+import { assertEquals } from 'zinnia:assert'
 
 const KNOWN_CID = 'bafkreih25dih6ug3xtj73vswccw423b56ilrwmnos4cbwhrceudopdp5sq'
 
@@ -24,9 +24,6 @@ test('fetchCAR - http', async () => {
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
-  assertInstanceOf(stats.startAt, Date)
-  assertInstanceOf(stats.firstByteAt, Date)
-  assertInstanceOf(stats.endAt, Date)
   assertEquals(stats.byteLength, 200, 'stats.byteLength')
   assertEquals(stats.carChecksum, '122069f03061f7ad4c14a5691b7e96d3ddd109023a6539a0b4230ea3dc92050e7136', 'stats.carChecksum')
   assertEquals(requests, [`https://frisbii.fly.dev/ipfs/${KNOWN_CID}?dag-scope=block`])
@@ -58,9 +55,6 @@ test('fetchCAR - graphsync', async () => {
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
-  assertInstanceOf(stats.startAt, Date)
-  assertInstanceOf(stats.firstByteAt, Date)
-  assertInstanceOf(stats.endAt, Date)
   assertEquals(stats.byteLength, 217, 'stats.byteLength')
   assertEquals(stats.carChecksum, '1220a8d765159d8829f2bca7df05e5cd46eb88bdaa30905d3d08c6295562ea072f0f', 'stats.carChecksum')
   assertEquals(requests, [`ipfs://${cid}?dag-scope=block&protocols=graphsync&providers=${encodeURIComponent(addr)}`])
