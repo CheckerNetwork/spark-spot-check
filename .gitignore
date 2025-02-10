@@ -1,2 +1,4 @@
 zinnia
 *.car
+*.log
+*.json
