@@ -8,19 +8,18 @@ test('pickTasks - no miner or limit specified', async () => {
   const tasks = givenTasks()
   const selectedTasks = await pickTasks({
     tasks,
-    maxTasks: -1,
+    maxTasks: -1
   })
 
   assertEquals(selectedTasks, tasks)
 })
-
 
 test('pickTasks - miner f010', async () => {
   const tasks = givenTasks()
   const selectedTasks = await pickTasks({
     tasks,
     minerId: 'f010',
-    maxTasks: -1,
+    maxTasks: -1
   })
 
   assertEquals(selectedTasks, [
@@ -29,17 +28,16 @@ test('pickTasks - miner f010', async () => {
   ])
 })
 
-
 test('pickTasks - miner f010 and limit 1', async () => {
   const tasks = givenTasks()
   const selectedTasks = await pickTasks({
     tasks,
     minerId: 'f010',
-    maxTasks: 1,
+    maxTasks: 1
   })
 
   assertEquals(selectedTasks, [
-    { cid: 'bafyone', minerId: 'f010' },
+    { cid: 'bafyone', minerId: 'f010' }
   ])
 })
 
@@ -47,7 +45,7 @@ test('pickTasks - limit 3', async () => {
   const tasks = givenTasks()
   const selectedTasks = await pickTasks({
     tasks,
-    maxTasks: 3,
+    maxTasks: 3
   })
 
   assertEquals(selectedTasks, [
@@ -57,8 +55,7 @@ test('pickTasks - limit 3', async () => {
   ])
 })
 
-
-function givenTasks() {
+function givenTasks () {
   return [
     { cid: 'bafyone', minerId: 'f010' },
     { cid: 'bafyone', minerId: 'f020' },
@@ -71,4 +68,3 @@ function givenTasks() {
     { cid: 'bafytwo', minerId: 'f040' }
   ]
 }
-

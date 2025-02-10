@@ -19,7 +19,7 @@ test('fetchCAR - http', async () => {
     protocol: 'http',
     address: '/dns/frisbii.fly.dev/tcp/443/https',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
@@ -52,8 +52,8 @@ test('fetchCAR - graphsync', async () => {
   await spark.fetchCAR({
     protocol: 'graphsync',
     address: addr,
-    cid: cid,
-    stats: stats,
+    cid,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
@@ -97,7 +97,7 @@ test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
     protocol: 'http',
     address: '/ip99/1.2.3.4.5/tcp/80/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 701, 'stats.statusCode')
@@ -110,7 +110,7 @@ test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
     protocol: 'http',
     address: '/ip4/1.2.3.4/udp/80/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 702, 'stats.statusCode')
@@ -123,7 +123,7 @@ test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () =
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/ldap',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 703, 'stats.statusCode')
@@ -136,7 +136,7 @@ test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async 
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 704, 'stats.statusCode')
@@ -149,7 +149,7 @@ test('fetchCAR fails with statusCode=801 (DNS error)', async () => {
     protocol: 'http',
     address: '/dns/invalid.example.com/tcp/80/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 801, 'stats.statusCode')
@@ -162,7 +162,7 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/79/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
@@ -175,7 +175,7 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/79/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
@@ -205,7 +205,7 @@ test('fetchCAR fails with statusCode=902 (hash mismatch)', async () => {
     protocol: 'http',
     address: '/dns/frisbii.fly.dev/tcp/443/https',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 902, 'stats.statusCode')
@@ -223,7 +223,7 @@ test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 903, 'stats.statusCode')
@@ -246,7 +246,7 @@ test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
-    stats: stats,
+    stats,
     dagScope: 'block'
   })
   assertEquals(stats.statusCode, 904, 'stats.statusCode')
