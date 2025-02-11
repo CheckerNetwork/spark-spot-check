@@ -12,7 +12,6 @@ import { getMinerPeerId as defaultGetMinerPeerId } from './lib/miner-info.js'
 
 const roundId = -1 // current
 const maxTasks = -1 // all tasks
-const entityBytesRange = '0:200' // fetch first 200 mb of the file
 const minerId = undefined // by default do not filter for specific miner tasks
 
 const getMinerPeerId = (minerId) =>
@@ -24,12 +23,12 @@ const retrievalTasks = []
 
 // If you want to test specific task / miner
 // you can add tasks to retrievalTasks array
-// const task = {
-//     cid: 'bafybeih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy',
-//     minerId: 'f0frisbii'
-// }
+const task = {
+  cid: 'bafybeiepi56qxfcwqgpstg25r6sonig7y3pzd37lwambzmlcmbnujjri4a',
+  minerId: 'f010479'
+}
 
-// retrievalTasks.push(task)
+retrievalTasks.push(task)
 
 const checker = new SpotChecker({ getMinerPeerId })
-await checker.run({ roundId, maxTasks, retrievalTasks, minerId, entityBytesRange })
+await checker.run({ roundId, maxTasks, retrievalTasks, minerId })

@@ -19,15 +19,13 @@ test('fetchCAR - http', async () => {
     protocol: 'http',
     address: '/dns/frisbii.fly.dev/tcp/443/https',
     cid: KNOWN_CID,
-    stats,
-    entityBytesRange: '0:200'
-
+    stats
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
   assertEquals(stats.byteLength, 200, 'stats.byteLength')
   assertEquals(stats.carChecksum, '122069f03061f7ad4c14a5691b7e96d3ddd109023a6539a0b4230ea3dc92050e7136', 'stats.carChecksum')
-  assertEquals(requests, [`https://frisbii.fly.dev/ipfs/${KNOWN_CID}?dag-scope=entity&entity-bytes=0:200`])
+  assertEquals(requests, [`https://frisbii.fly.dev/ipfs/${KNOWN_CID}?dag-scope=all`])
 })
 
 test('fetchCAR - graphsync', async () => {
@@ -51,14 +49,13 @@ test('fetchCAR - graphsync', async () => {
     protocol: 'graphsync',
     address: addr,
     cid,
-    stats,
-    entityBytesRange: '0:200'
+    stats
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
   assertEquals(stats.byteLength, 217, 'stats.byteLength')
   assertEquals(stats.carChecksum, '1220a8d765159d8829f2bca7df05e5cd46eb88bdaa30905d3d08c6295562ea072f0f', 'stats.carChecksum')
-  assertEquals(requests, [`ipfs://${cid}?dag-scope=entity&entity-bytes=${encodeURIComponent('0:200')}&protocols=graphsync&providers=${encodeURIComponent(addr)}`])
+  assertEquals(requests, [`ipfs://${cid}?dag-scope=all&protocols=graphsync&providers=${encodeURIComponent(addr)}`])
 })
 
 test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
@@ -68,8 +65,8 @@ test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
     protocol: 'http',
     address: '/ip99/1.2.3.4.5/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
-    entityBytesRange: '0:200'
+    stats
+
   })
   assertEquals(stats.statusCode, 701, 'stats.statusCode')
 })
@@ -94,8 +91,8 @@ test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () =
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/ldap',
     cid: KNOWN_CID,
-    stats,
-    entityBytesRange: '0:200'
+    stats
+
   })
   assertEquals(stats.statusCode, 703, 'stats.statusCode')
 })
@@ -158,7 +155,7 @@ test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
   const spark = new SpotChecker({
     // Fetch the root block of a different CID
     fetch: (_url) => fetch(
-      'https://frisbii.fly.dev/ipfs/bafkreih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy?dag-scope=entity&entity-bytes=0:200'
+      'https://frisbii.fly.dev/ipfs/bafkreih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy?dag-scope=all'
     )
   })
   const stats = newStats()
@@ -166,8 +163,7 @@ test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
-    entityBytesRange: '0:200'
+    stats
   })
   assertEquals(stats.statusCode, 903, 'stats.statusCode')
 })
