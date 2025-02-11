@@ -4,7 +4,6 @@ import { assertEquals } from 'zinnia:assert'
 import { getMinerPeerId as defaultGetMinerPeerId } from '../lib/miner-info.js'
 
 test('can execute spot check for our CID', async () => {
-  const dagScope = 'entity'
   const entityBytesRange = '0:200'
 
   // The task to check, replace with your own values
@@ -21,7 +20,7 @@ test('can execute spot check for our CID', async () => {
   // Run the check
   const spark = new SpotChecker({ getMinerPeerId })
   const stats = { ...task, indexerResult: null, statusCode: null, byteLength: 0 }
-  await spark.executeSpotCheck({ task, stats, dagScope, entityBytesRange })
+  await spark.executeSpotCheck({ task, stats, entityBytesRange })
 
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.indexerResult, 'OK', 'stats.indexerResult')

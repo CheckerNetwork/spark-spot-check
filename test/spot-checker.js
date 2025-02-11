@@ -20,13 +20,14 @@ test('fetchCAR - http', async () => {
     address: '/dns/frisbii.fly.dev/tcp/443/https',
     cid: KNOWN_CID,
     stats,
-    dagScope: 'block'
+    entityBytesRange: '0:200'
+
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
   assertEquals(stats.byteLength, 200, 'stats.byteLength')
   assertEquals(stats.carChecksum, '122069f03061f7ad4c14a5691b7e96d3ddd109023a6539a0b4230ea3dc92050e7136', 'stats.carChecksum')
-  assertEquals(requests, [`https://frisbii.fly.dev/ipfs/${KNOWN_CID}?dag-scope=block`])
+  assertEquals(requests, [`https://frisbii.fly.dev/ipfs/${KNOWN_CID}?dag-scope=entity&entity-bytes=0:200`])
 })
 
 test('fetchCAR - graphsync', async () => {
@@ -51,38 +52,14 @@ test('fetchCAR - graphsync', async () => {
     address: addr,
     cid,
     stats,
-    dagScope: 'block'
+    entityBytesRange: '0:200'
   })
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.timeout, false, 'stats.timeout')
   assertEquals(stats.byteLength, 217, 'stats.byteLength')
   assertEquals(stats.carChecksum, '1220a8d765159d8829f2bca7df05e5cd46eb88bdaa30905d3d08c6295562ea072f0f', 'stats.carChecksum')
-  assertEquals(requests, [`ipfs://${cid}?dag-scope=block&protocols=graphsync&providers=${encodeURIComponent(addr)}`])
+  assertEquals(requests, [`ipfs://${cid}?dag-scope=entity&entity-bytes=${encodeURIComponent('0:200')}&protocols=graphsync&providers=${encodeURIComponent(addr)}`])
 })
-
-/* Disabled as long as we are fetching the top-level block only
-test('fetchCAR exceeding MAX_CAR_SIZE', async () => {
-  const fetch = async url => {
-    return {
-      status: 200,
-      ok: true,
-      body: (async function * () {
-        const data = new Uint8Array(MAX_CAR_SIZE + 1)
-        data.fill(11, 0, -1)
-        yield data
-      })()
-    }
-  }
-  const spark = new Spotchecker({ fetch })
-  const stats = newStats()
-  await spark.fetchCAR('http', '/ip4/127.0.0.1/tcp/80/http', 'bafy', stats)
-  assertEquals(stats.timeout, false)
-  assertEquals(stats.carTooLarge, true)
-  assertEquals(stats.byteLength, MAX_CAR_SIZE + 1)
-  assertEquals(stats.carChecksum, null)
-  assertEquals(stats.statusCode, 200)
-})
-*/
 
 test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
   const spark = new SpotChecker()
@@ -92,7 +69,7 @@ test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
     address: '/ip99/1.2.3.4.5/tcp/80/http',
     cid: KNOWN_CID,
     stats,
-    dagScope: 'block'
+    entityBytesRange: '0:200'
   })
   assertEquals(stats.statusCode, 701, 'stats.statusCode')
 })
@@ -104,8 +81,8 @@ test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
     protocol: 'http',
     address: '/ip4/1.2.3.4/udp/80/http',
     cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
+    stats
+
   })
   assertEquals(stats.statusCode, 702, 'stats.statusCode')
 })
@@ -118,7 +95,7 @@ test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () =
     address: '/ip4/1.2.3.4/tcp/80/ldap',
     cid: KNOWN_CID,
     stats,
-    dagScope: 'block'
+    entityBytesRange: '0:200'
   })
   assertEquals(stats.statusCode, 703, 'stats.statusCode')
 })
@@ -130,8 +107,8 @@ test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async 
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey',
     cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
+    stats
+
   })
   assertEquals(stats.statusCode, 704, 'stats.statusCode')
 })
@@ -143,8 +120,8 @@ test('fetchCAR fails with statusCode=801 (DNS error)', async () => {
     protocol: 'http',
     address: '/dns/invalid.example.com/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
+    stats
+
   })
   assertEquals(stats.statusCode, 801, 'stats.statusCode')
 })
@@ -156,8 +133,8 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/79/http',
     cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
+    stats
+
   })
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
 })
@@ -169,8 +146,7 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/79/http',
     cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
+    stats
   })
   assertEquals(stats.statusCode, 802, 'stats.statusCode')
 })
@@ -178,38 +154,11 @@ test('fetchCAR fails with statusCode=802 (TCP connection refused)', async () => 
 // TODO:
 // statusCode=901 - unsupported hash algorithm
 
-test('fetchCAR fails with statusCode=902 (hash mismatch)', async () => {
-  const spark = new SpotChecker({
-    fetch: async (url) => {
-      const res = await fetch(url)
-      return {
-        status: res.status,
-        ok: res.ok,
-        body: (async function * () {
-          const bytes = new Uint8Array(await res.arrayBuffer())
-          // manipulate one byte inside the CAR block
-          bytes[bytes.length - 1] = bytes[bytes.length - 1] ^ 0x88
-          yield bytes
-        })()
-      }
-    }
-  })
-  const stats = newStats()
-  await spark.fetchCAR({
-    protocol: 'http',
-    address: '/dns/frisbii.fly.dev/tcp/443/https',
-    cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
-  })
-  assertEquals(stats.statusCode, 902, 'stats.statusCode')
-})
-
 test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
   const spark = new SpotChecker({
     // Fetch the root block of a different CID
     fetch: (_url) => fetch(
-      'https://frisbii.fly.dev/ipfs/bafkreih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy?dag-scope=block'
+      'https://frisbii.fly.dev/ipfs/bafkreih5zasorm4tlfga4ztwvm2dlnw6jxwwuvgnokyt3mjamfn3svvpyy?dag-scope=entity&entity-bytes=0:200'
     )
   })
   const stats = newStats()
@@ -218,7 +167,7 @@ test('fetchCAR fails with statusCode=903 (unexpected CAR block)', async () => {
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
     stats,
-    dagScope: 'block'
+    entityBytesRange: '0:200'
   })
   assertEquals(stats.statusCode, 903, 'stats.statusCode')
 })
@@ -240,8 +189,7 @@ test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
-    dagScope: 'block'
+    stats
   })
   assertEquals(stats.statusCode, 904, 'stats.statusCode')
 })
