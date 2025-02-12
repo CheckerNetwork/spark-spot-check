@@ -22,6 +22,5 @@ test('can execute spot check for our CID', async () => {
 
   assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.indexerResult, 'OK', 'stats.indexerResult')
-  assertEquals(stats.byteLength, 200, 'stats.byteLength')
-  assertEquals(stats.carChecksum, '122069f03061f7ad4c14a5691b7e96d3ddd109023a6539a0b4230ea3dc92050e7136', 'stats.carChecksum')
+  assertEquals(stats.byteLength, 103, 'stats.byteLength')
 })

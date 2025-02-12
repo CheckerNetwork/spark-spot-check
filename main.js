@@ -5,6 +5,7 @@
 // roundNum = -1 for current round by default; adjust to your desired round number
 // maxTasks = -1 for all tasks by default; adjust to the desired number of tasks you want to run
 // minerId = undefined by default; set to miner id if you want to spot check specific miner (storage provider)
+// maxByteLength = undefined by default; if set it will define upper limit after which retrieval will be terminated
 //
 
 import SpotChecker from './lib/spot-checker.js'
@@ -13,6 +14,7 @@ import { getMinerPeerId as defaultGetMinerPeerId } from './lib/miner-info.js'
 const roundId = -1 // current
 const maxTasks = -1 // all tasks
 const minerId = undefined // by default do not filter for specific miner tasks
+const maxByteLength = undefined
 
 const getMinerPeerId = (minerId) =>
   minerId === 'f0frisbii'
@@ -31,4 +33,4 @@ const task = {
 retrievalTasks.push(task)
 
 const checker = new SpotChecker({ getMinerPeerId })
-await checker.run({ roundId, maxTasks, retrievalTasks, minerId })
+await checker.run({ roundId, maxTasks, retrievalTasks, minerId, maxByteLength })
