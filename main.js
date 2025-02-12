@@ -1,36 +1,21 @@
-//
-// Usage:
-// zinnia run main.js
-//
-// roundNum = -1 for current round by default; adjust to your desired round number
-// maxTasks = -1 for all tasks by default; adjust to the desired number of tasks you want to run
-// minerId = undefined by default; set to miner id if you want to spot check specific miner (storage provider)
-// maxByteLength = undefined by default; if set it will define upper limit after which retrieval will be terminated
-//
-
 import SpotChecker from './lib/spot-checker.js'
 import { getMinerPeerId as defaultGetMinerPeerId } from './lib/miner-info.js'
+import { roundId, maxTasks, minerId, maxByteLength, retrievalTasks } from './config.js'
 
-const roundId = -1 // current
-const maxTasks = -1 // all tasks
-const minerId = undefined // by default do not filter for specific miner tasks
-const maxByteLength = undefined
-
+/**
+ * Checks data accessibility by performing complete retrievals from storage providers.
+ * This validation ensures that stored data can be successfully accessed and downloaded.
+ *
+ * Usage:
+ * zinnia run main.js
+ *
+ * Configuration options can be found in config.js
+ *
+ */
 const getMinerPeerId = (minerId) =>
   minerId === 'f0frisbii'
     ? '12D3KooWC8gXxg9LoJ9h3hy3jzBkEAxamyHEQJKtRmAuBuvoMzpr'
     : defaultGetMinerPeerId(minerId)
-
-const retrievalTasks = []
-
-// If you want to test specific task / miner
-// you can add tasks to retrievalTasks array
-const task = {
-  cid: 'bafybeiepi56qxfcwqgpstg25r6sonig7y3pzd37lwambzmlcmbnujjri4a',
-  minerId: 'f010479'
-}
-
-retrievalTasks.push(task)
 
 const checker = new SpotChecker({ getMinerPeerId })
 await checker.run({ roundId, maxTasks, retrievalTasks, minerId, maxByteLength })
