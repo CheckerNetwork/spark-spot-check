@@ -1,10 +1,10 @@
 /**
  * Configuration options:
  * - roundNum: Specifies which round to analyze
- *   Default: -1 (uses current round)
+ *   Default: undefined (uses current round)
  *
  * - maxTasks: Limits the number of tasks to process
- *   Default: -1 (processes all tasks)
+ *   Default: undefined (processes all tasks)
  *
  * - minerId: Focuses spot check on a specific storage provider
  *   Default: undefined (spot checks all miners)
@@ -21,8 +21,8 @@
  *   ]
  *   Default: [] (tasks will be loaded from network)
  */
-export const roundId = -1
-export const maxTasks = -1
+export const roundId = undefined
+export const maxTasks = undefined
 export const minerId = undefined
 export const maxByteLength = undefined
 export const retrievalTasks = []
