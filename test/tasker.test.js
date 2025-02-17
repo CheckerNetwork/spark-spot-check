@@ -2,25 +2,117 @@
 
 import { test } from 'zinnia:test'
 import { assertEquals } from 'zinnia:assert'
-import { getStationKey, getTaskKey, pickTasks } from '../lib/tasker.js'
+import { pickTasks, Tasker } from '../lib/tasker.js'
+import { MERIDIAN_CONTRACT } from '../lib/constants.js'
 
-const RANDOMNESS = 'fc90e50dcdf20886b56c038b30fa921a5e57c532ea448dadcc209e44eec0445e'
+test('get retrieval tasks', async () => {
+  const round = {
+    roundId: '123',
+    startEpoch: 4111111,
+    maxTasksPerNode: 1,
+    retrievalTasks: [
+      {
+        cid: 'bafkreidysaugf7iuvemebpzwxxas5rctbyiryykagup2ygkojmx7ag64gy',
+        minerId: 'f010'
+      },
+      {
+        cid: 'QmUMpWycKJ7GUDJp9GBRX4qWUFUePUmHzri9Tm1CQHEzbJ',
+        minerId: 'f020'
+      }
+    ]
+  }
 
-test('getTaskKey', async () => {
-  const key = await getTaskKey(
-    { cid: 'bafyone', minerId: 'f0123' },
-    RANDOMNESS
-  )
-  assertEquals(key, 19408172415633384483144889917969030396168570904487614072975030553911283422991n)
+  const fetch = async (url, allOpts) => {
+    const { signal, ...opts } = allOpts
+    requests.push({ url, opts })
+    return {
+      status: 200,
+      ok: true,
+      async json () {
+        return round
+      }
+    }
+  }
+
+  const requests = []
+  const tasker = new Tasker({ fetch })
+  await tasker.getRetrievalTasks({})
+  assertEquals(requests, [
+    {
+      url: 'https://api.filspark.com/rounds/current',
+      opts: {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+    }
+  ])
+  requests.splice(0) // clear requests array
+
+  await tasker.getRetrievalTasks({ roundId: 123 })
+  assertEquals(requests, [
+    {
+      url: `https://api.filspark.com/rounds/meridian/${MERIDIAN_CONTRACT}/123`,
+      opts: {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+    }
+  ])
 })
 
-test('getStationKey', async () => {
-  const key = await getStationKey(Zinnia.stationId)
-  assertEquals(key, 15730389902218173522122968096857080019341969656147255283496861606681823756880n)
+test('pickTasks - no miner or limit specified', async () => {
+  const tasks = givenTasks()
+  const selectedTasks = await pickTasks({
+    tasks,
+    maxTasks: -1
+  })
+
+  assertEquals(selectedTasks, tasks)
 })
 
-test('pickTasksForNode', async () => {
-  const allTasks = [
+test('pickTasks - miner f010', async () => {
+  const tasks = givenTasks()
+  const selectedTasks = await pickTasks({
+    tasks,
+    minerId: 'f010',
+    maxTasks: -1
+  })
+
+  assertEquals(selectedTasks, [
+    { cid: 'bafyone', minerId: 'f010' },
+    { cid: 'bafytwo', minerId: 'f010' }
+  ])
+})
+
+test('pickTasks - miner f010 and limit 1', async () => {
+  const tasks = givenTasks()
+  const selectedTasks = await pickTasks({
+    tasks,
+    minerId: 'f010',
+    maxTasks: 1
+  })
+
+  assertEquals(selectedTasks, [
+    { cid: 'bafyone', minerId: 'f010' }
+  ])
+})
+
+test('pickTasks - limit 3', async () => {
+  const tasks = givenTasks()
+  const selectedTasks = await pickTasks({
+    tasks,
+    maxTasks: 3
+  })
+
+  assertEquals(selectedTasks, [
+    { cid: 'bafyone', minerId: 'f010' },
+    { cid: 'bafyone', minerId: 'f020' },
+    { cid: 'bafyone', minerId: 'f030' }
+  ])
+})
+
+function givenTasks () {
+  return [
     { cid: 'bafyone', minerId: 'f010' },
     { cid: 'bafyone', minerId: 'f020' },
     { cid: 'bafyone', minerId: 'f030' },
@@ -31,17 +123,4 @@ test('pickTasksForNode', async () => {
     { cid: 'bafytwo', minerId: 'f030' },
     { cid: 'bafytwo', minerId: 'f040' }
   ]
-
-  const selectedTasks = await pickTasks({
-    tasks: allTasks,
-    stationId: 'some-station-id',
-    randomness: RANDOMNESS,
-    maxTasksPerRound: 3
-  })
-
-  assertEquals(selectedTasks, [
-    { cid: 'bafyone', minerId: 'f020' },
-    { cid: 'bafyone', minerId: 'f010' },
-    { cid: 'bafytwo', minerId: 'f020' }
-  ])
-})
+}
