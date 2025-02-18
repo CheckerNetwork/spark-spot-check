@@ -20,6 +20,6 @@ All configuration options are managed through the `config.js` file. The followin
 |-----------|-------------|---------|
 | `roundId` | Specifies which round to test retrievals from. When undefined, tests the current round. | `undefined` |
 | `maxTasks` | Limits the number of tasks to check. When undefined, tests all available tasks. | `undefined` |
-| `minerId` | Filters spot checks to a specific Storage Provider. Only processes tasks for the specified provider if found in the round. | `undefined` |
+| `minerId` | Filters spot checks to a specific Storage Provider. Only processes tasks for the specified provider if found in the round. When undefined tests tasks for all Storage Providers. | `undefined` |
 | `maxByteLength` | Limits the number of bytes to retrieve per file. When undefined, retrieves complete files. | `undefined` |
 | `retrievalTasks` | Restricts spot checks to specific tasks. When undefined, processes all available tasks based on other configuration parameters. | `undefined` |
