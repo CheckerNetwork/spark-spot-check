@@ -17,12 +17,12 @@ test('fetchCAR - http', async () => {
     protocol: 'http',
     address: '/dns/frisbii.fly.dev/tcp/443/https',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
 
   assertEquals(
-    stats.fullRetrieval, 
+    stats.fullRetrieval,
     { statusCode: 200, timeout: false, byteLength: 103 },
     'stats.fullRetrieval'
   )
@@ -31,13 +31,15 @@ test('fetchCAR - http', async () => {
     protocol: 'http',
     address: '/dns/frisbii.fly.dev/tcp/443/https',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
 
-  assertEquals(stats.blockRetrieval.statusCode, 200, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.timeout, false, 'stats.timeout')
-  assertEquals(stats.blockRetrieval.byteLength, 103, 'stats.byteLength')
+  assertEquals(
+    stats.blockRetrieval,
+    { statusCode: 200, timeout: false, byteLength: 103 },
+    'stats.blockRetrieval'
+  )
 
   assertEquals(requests, [
     `ipfs://${KNOWN_CID}?dag-scope=all&protocols=http&providers=%2Fdns%2Ffrisbii.fly.dev%2Ftcp%2F443%2Fhttps`,
@@ -52,7 +54,8 @@ test('fetchCAR - graphsync', async () => {
   // content that can be retrieved over Graphsync.
   // Hopefully, we will no longer support Graphsync by that time.
   const cid = 'bafybeiepi56qxfcwqgpstg25r6sonig7y3pzd37lwambzmlcmbnujjri4a'
-  const addr = '/dns/f010479.twinquasar.io/tcp/42002/p2p/12D3KooWHKeaNCnYByQUMS2n5PAZ1KZ9xKXqsb4bhpxVJ6bBJg5V'
+  const addr =
+    '/dns/f010479.twinquasar.io/tcp/42002/p2p/12D3KooWHKeaNCnYByQUMS2n5PAZ1KZ9xKXqsb4bhpxVJ6bBJg5V'
 
   const requests = []
   const spark = new SpotChecker({
@@ -66,26 +69,31 @@ test('fetchCAR - graphsync', async () => {
     protocol: 'graphsync',
     address: addr,
     cid,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
 
-  assertEquals(stats.blockRetrieval.statusCode, 200, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.timeout, false, 'stats.timeout')
-  assertEquals(stats.blockRetrieval.byteLength, 120, 'stats.byteLength')
+  assertEquals(
+    stats.blockRetrieval,
+    { statusCode: 200, timeout: false, byteLength: 120 },
+    'stats.blockRetrieval'
+  )
 
   await spark.fetchCAR({
     protocol: 'graphsync',
     address: addr,
     cid,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all',
     maxByteLength: 600 // download first two blocks
   })
 
-  assertEquals(stats.fullRetrieval.statusCode, 200, 'stats.statusCode')
-  assertEquals(stats.fullRetrieval.timeout, false, 'stats.timeout')
-  assertEquals(stats.fullRetrieval.byteLength, 601, 'stats.byteLength')
+  assertEquals(
+    stats.fullRetrieval,
+    { statusCode: 200, timeout: false, byteLength: 601 },
+    'stats.fullRetrieval'
+  )
+
   assertEquals(requests, [
     `ipfs://${cid}?dag-scope=block&protocols=graphsync&providers=${encodeURIComponent(addr)}`,
     `ipfs://${cid}?dag-scope=all&protocols=graphsync&providers=${encodeURIComponent(addr)}`
@@ -99,14 +107,14 @@ test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
     protocol: 'http',
     address: '/ip99/1.2.3.4.5/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
   await spark.fetchCAR({
     protocol: 'http',
     address: '/ip99/1.2.3.4.5/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
   assertEquals(stats.fullRetrieval.statusCode, 701, 'stats.statusCode')
@@ -120,14 +128,14 @@ test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
     protocol: 'http',
     address: '/ip4/1.2.3.4/udp/80/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
   await spark.fetchCAR({
     protocol: 'http',
     address: '/ip4/1.2.3.4/udp/80/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
   assertEquals(stats.fullRetrieval.statusCode, 702, 'stats.statusCode')
@@ -141,14 +149,14 @@ test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () =
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/ldap',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
   await spark.fetchCAR({
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/ldap',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
   assertEquals(stats.fullRetrieval.statusCode, 703, 'stats.statusCode')
@@ -162,14 +170,14 @@ test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async 
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
   await spark.fetchCAR({
     protocol: 'http',
     address: '/ip4/1.2.3.4/tcp/80/http/p2p/pubkey',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
   assertEquals(stats.fullRetrieval.statusCode, 704, 'stats.statusCode')
@@ -183,14 +191,14 @@ test('fetchCAR fails with statusCode=502 (no candidates found)', async () => {
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/79/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
   await spark.fetchCAR({
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/79/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
   assertEquals(stats.fullRetrieval.statusCode, 502, 'stats.statusCode')
@@ -214,14 +222,14 @@ test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.fullRetrieval,
     dagScope: 'all'
   })
   await spark.fetchCAR({
     protocol: 'http',
     address: '/ip4/127.0.0.1/tcp/80/http',
     cid: KNOWN_CID,
-    stats,
+    stats: stats.blockRetrieval,
     dagScope: 'block'
   })
   assertEquals(stats.fullRetrieval.statusCode, 904, 'stats.statusCode')
