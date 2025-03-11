@@ -21,9 +21,11 @@ test('fetchCAR - http', async () => {
     dagScope: 'all'
   })
 
-  assertEquals(stats.fullRetrieval.statusCode, 200, 'stats.statusCode')
-  assertEquals(stats.fullRetrieval.timeout, false, 'stats.timeout')
-  assertEquals(stats.fullRetrieval.byteLength, 103, 'stats.byteLength')
+  assertEquals(
+    stats.fullRetrieval, 
+    { statusCode: 200, timeout: false, byteLength: 103 },
+    'stats.fullRetrieval'
+  )
 
   await spark.fetchCAR({
     protocol: 'http',
