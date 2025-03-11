@@ -117,8 +117,8 @@ test('fetchCAR fails with statusCode=701 (unsupported host type)', async () => {
     stats: stats.blockRetrieval,
     dagScope: 'block'
   })
-  assertEquals(stats.fullRetrieval.statusCode, 701, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.statusCode, 701, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.statusCode, 701, 'stats.fullRetrieval.statusCode')
+  assertEquals(stats.blockRetrieval.statusCode, 701, 'stats.blockRetrieval.statusCode')
 })
 
 test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
@@ -138,8 +138,8 @@ test('fetchCAR fails with statusCode=702 (protocol is not tcp)', async () => {
     stats: stats.blockRetrieval,
     dagScope: 'block'
   })
-  assertEquals(stats.fullRetrieval.statusCode, 702, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.statusCode, 702, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.statusCode, 702, 'stats.fullRetrieval.statusCode')
+  assertEquals(stats.blockRetrieval.statusCode, 702, 'stats.blockRetrieval.statusCode')
 })
 
 test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () => {
@@ -159,8 +159,8 @@ test('fetchCAR fails with statusCode=703 (scheme is not http/https)', async () =
     stats: stats.blockRetrieval,
     dagScope: 'block'
   })
-  assertEquals(stats.fullRetrieval.statusCode, 703, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.statusCode, 703, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.statusCode, 703, 'stats.fullRetrieval.statusCode')
+  assertEquals(stats.blockRetrieval.statusCode, 703, 'stats.blockRetrieval.statusCode')
 })
 
 test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async () => {
@@ -180,8 +180,8 @@ test('fetchCAR fails with statusCode=704 (multiaddr has too many parts)', async 
     stats: stats.blockRetrieval,
     dagScope: 'block'
   })
-  assertEquals(stats.fullRetrieval.statusCode, 704, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.statusCode, 704, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.statusCode, 704, 'stats.fullRetrieval.statusCode')
+  assertEquals(stats.blockRetrieval.statusCode, 704, 'stats.blockRetrieval.statusCode')
 })
 
 test('fetchCAR fails with statusCode=502 (no candidates found)', async () => {
@@ -201,8 +201,8 @@ test('fetchCAR fails with statusCode=502 (no candidates found)', async () => {
     stats: stats.blockRetrieval,
     dagScope: 'block'
   })
-  assertEquals(stats.fullRetrieval.statusCode, 502, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.statusCode, 502, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.statusCode, 502, 'stats.fullRetrieval.statusCode')
+  assertEquals(stats.blockRetrieval.statusCode, 502, 'stats.blockRetrieval.statusCode')
 })
 
 test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
@@ -232,6 +232,6 @@ test('fetchCAR fails with statusCode=904 (cannot parse CAR)', async () => {
     stats: stats.blockRetrieval,
     dagScope: 'block'
   })
-  assertEquals(stats.fullRetrieval.statusCode, 904, 'stats.statusCode')
-  assertEquals(stats.blockRetrieval.statusCode, 904, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.statusCode, 904, 'stats.fullRetrieval.statusCode')
+  assertEquals(stats.blockRetrieval.statusCode, 904, 'stats.blockRetrieval.statusCode')
 })
