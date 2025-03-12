@@ -1,5 +1,3 @@
-/* global Zinnia */
-
 import { test } from 'zinnia:test'
 import { assertEquals } from 'zinnia:assert'
 import { pickTasks, Tasker } from '../lib/tasker.js'

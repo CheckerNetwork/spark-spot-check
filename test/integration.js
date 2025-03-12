@@ -1,4 +1,4 @@
-import SpotChecker from '../lib/spot-checker.js'
+import SpotChecker, { newStats } from '../lib/spot-checker.js'
 import { test } from 'zinnia:test'
 import { assertEquals } from 'zinnia:assert'
 import { getMinerPeerId as defaultGetMinerPeerId } from '../lib/miner-info.js'
@@ -17,10 +17,12 @@ test('can execute spot check for our CID', async () => {
 
   // Run the check
   const spark = new SpotChecker({ getMinerPeerId })
-  const stats = { ...task, indexerResult: null, statusCode: null, byteLength: 0 }
+  const stats = { ...task, ...newStats() }
   await spark.executeSpotCheck({ task, stats })
 
-  assertEquals(stats.statusCode, 200, 'stats.statusCode')
   assertEquals(stats.indexerResult, 'OK', 'stats.indexerResult')
-  assertEquals(stats.byteLength, 103, 'stats.byteLength')
+  assertEquals(stats.fullRetrieval.statusCode, 200, 'stats.statusCode')
+  assertEquals(stats.fullRetrieval.byteLength, 103, 'stats.byteLength')
+  assertEquals(stats.blockRetrieval.statusCode, 200, 'stats.statusCode')
+  assertEquals(stats.blockRetrieval.byteLength, 103, 'stats.byteLength')
 })
