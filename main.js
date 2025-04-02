@@ -1,5 +1,5 @@
 import SpotChecker from './lib/spot-checker.js'
-import { getMinerPeerId as defaultGetMinerPeerId } from './lib/miner-info.js'
+import { getIndexProviderPeerId as defaultGetIndexProviderPeerId } from './lib/miner-info.js'
 import { roundId, maxTasks, minerId, maxByteLength, retrievalTasks } from './config.js'
 
 /**
@@ -12,10 +12,10 @@ import { roundId, maxTasks, minerId, maxByteLength, retrievalTasks } from './con
  * Configuration options can be found in config.js
  *
  */
-const getMinerPeerId = (minerId) =>
+const getIndexProviderPeerId = (minerId) =>
   minerId === 'f0frisbii'
     ? '12D3KooWC8gXxg9LoJ9h3hy3jzBkEAxamyHEQJKtRmAuBuvoMzpr'
-    : defaultGetMinerPeerId(minerId)
+    : defaultGetIndexProviderPeerId(minerId)
 
-const checker = new SpotChecker({ getMinerPeerId })
+const checker = new SpotChecker({ getIndexProviderPeerId: getIndexProviderPeerId })
 await checker.run({ roundId, maxTasks, retrievalTasks, minerId, maxByteLength })
