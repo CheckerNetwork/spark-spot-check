@@ -1,7 +1,7 @@
 import SpotChecker, { newStats } from '../lib/spot-checker.js'
 import { test } from 'zinnia:test'
 import { assertEquals } from 'zinnia:assert'
-import { getIndexProviderPeerId  as defaultGetIndexProviderPeerId} from '../lib/miner-info.js'
+import { getIndexProviderPeerId as defaultGetIndexProviderPeerId } from '../lib/miner-info.js'
 
 test('can execute spot check for our CID', async () => {
   // The task to check, replace with your own values
