@@ -13,6 +13,19 @@ Once Zinnia is installed, you can execute Spark Spot Check with a simple command
 zinnia run main.js
 ```
 
+## Development
+
+Make sure you have installed [Zinnia runtime](https://github.com/CheckerNetwork/zinnia).
+
+```
+$ # Lint
+$ npx standard
+$ # Run module
+$ zinnia run main.js
+$ # Test module
+$ zinnia run test.js
+```
+
 ## Configuration
 All configuration options are managed through the `config.js` file. The following parameters can be customized:
 
