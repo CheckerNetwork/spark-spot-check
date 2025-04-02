@@ -17,5 +17,5 @@ const getIndexProviderPeerId = (minerId) =>
     ? '12D3KooWC8gXxg9LoJ9h3hy3jzBkEAxamyHEQJKtRmAuBuvoMzpr'
     : defaultGetIndexProviderPeerId(minerId)
 
-const checker = new SpotChecker({ getIndexProviderPeerId: getIndexProviderPeerId })
+const checker = new SpotChecker({ getIndexProviderPeerId })
 await checker.run({ roundId, maxTasks, retrievalTasks, minerId, maxByteLength })

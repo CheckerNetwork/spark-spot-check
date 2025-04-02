@@ -1,7 +1,7 @@
 import SpotChecker, { newStats } from '../lib/spot-checker.js'
 import { test } from 'zinnia:test'
 import { assertEquals } from 'zinnia:assert'
-import { getIndexProviderPeerId as defaultGetIndexProviderPeerId } from '../lib/miner-info.js'
+import { getIndexProviderPeerId } from '../lib/miner-info.js'
 
 test('can execute spot check for our CID', async () => {
   // The task to check, replace with your own values
@@ -13,7 +13,7 @@ test('can execute spot check for our CID', async () => {
   const defaultGetIndexProviderPeerId = (minerId) =>
     minerId === 'f0frisbii'
       ? '12D3KooWC8gXxg9LoJ9h3hy3jzBkEAxamyHEQJKtRmAuBuvoMzpr'
-      : defaultGetIndexProviderPeerId(minerId)
+      : getIndexProviderPeerId(minerId)
 
   // Run the check
   const spark = new SpotChecker({ getIndexProviderPeerId: defaultGetIndexProviderPeerId })
