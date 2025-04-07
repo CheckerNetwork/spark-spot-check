@@ -14,7 +14,7 @@ export {
   getIndexProviderPeerId,
   MINER_TO_PEERID_CONTRACT_ADDRESS,
   MINER_TO_PEERID_CONTRACT_ABI,
-} from 'https://cdn.jsdelivr.net/npm/index-provider-peer-id@1.0.0/index.js/+esm'
+} from 'https://cdn.jsdelivr.net/npm/index-provider-peer-id@1.0.1/index.js/+esm'
 export { ethers } from 'https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.min.js'
 
 export {
